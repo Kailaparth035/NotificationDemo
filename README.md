@@ -77,3 +77,58 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+
+
+<!--  implementation for push notification  -->
+
+1. Creeate a firebase account and create a app for android.
+2. Inabale Cloud Messaging API (Legacy) for clound inabale 
+3. Implement firebase library 
+ - @react-native-firebase/messaging
+ - @react-native-firebase/app
+4. add related files in android folder
+   * Android Manifest File
+ -  <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+ -  <service
+            android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+   </service>
+   * android/build.gradle
+     - classpath('com.google.gms:google-services:4.3.3')
+   * android/app/build.gradle 
+     - implementation 'com.google.firebase:firebase-analytics:17.3.0'
+     - apply plugin: 'com.google.gms.google-services'
+   * android/settings.gradle
+     - include ':react-native-push-notification'
+       project(':react-native-push-notification').projectDir = file('../node_modules/react-native-push-notification/android')
+     -  implementation project(':react-native-push-notification')
+
+5. In react-native side code
+   - First get fcs token using messaging library  
+      - messaging().getToken()
+   - fcm token used testing online site "fcm token testing"    
+
+6. user send one application to another application notification
+   - "https://fcm.googleapis.com/fcm/send" user send this api to messsage using another user fcm token.
+   - used sercreat-key
+   
+7. When application off then background notification using  this function
+   - messaging().setBackgroundMessageHandler
+
+8. When application open then notification get using this library and use this function 
+  - react-native-push-notification
+  - messaging().onMessage(message => {
+      PushNotification.localNotification({
+        data: message?.data,
+        title: message?.notification.title, // (optional)
+        message: message?.notification.body,
+        playSound: true, // (optional) default: true
+        soundName: 'default',
+        invokeApp: true,
+      });
+    });
